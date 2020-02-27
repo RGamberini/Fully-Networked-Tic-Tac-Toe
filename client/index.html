@@ -13,12 +13,59 @@
 </head>
 
 <body style="background-color: #eee; margin: 0">
-<div id="buttonContainer">
-	<h1>Tic Tac Toe Test Harness</h1>
-	<div id="chatbox" style="text-align: right;"></div>
-	<button id="client_hello" onclick="Window.client_hello()">Send Client Hello</button>
-	<button id="start_matchmaking" onclick="Window.start_matchmaking()">Send Start Matchmaking</button>
-</div>
-<script src="script.js"></script>
+	<div class="cardWrapper gone">
+		<div class="card top">
+			<div class="cardContent">
+				<h3>Game Over</h3>
+				<p>Congratulations you won! </p>
+			</div>
+			<div class="cardButtons">
+				<button>Go Back</button>
+				<button style="float: right">Rematch</button>
+			</div>
+		</div>
+	</div>
+	<div id="start">
+		<div class="pushup">
+			<header>
+				<h1>Tic Tac Toe</h1>
+			</header>
+			<input type="text" id="name" placeholder="Enter your name">
+		</div>
+		<div id="buttonContainer">
+			<button id="bot">Play VS CPU</button>
+			<button style="float: right;" id="play">Play VS Human</button>
+		</div>
+	</div>
+	<div id="selectOpponent" class="right gone">
+		<div class="pushup">
+			<header>
+				<h3>Select Opponent</h3>
+			</header>
+			<div id="buttons" style="display: flex; justify-content: center;">
+				<button>Rude</button>
+			</div>
+		</div>
+	</div>
+	<div id="tableContainer" class="right gone">
+		<table>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</table>
+	</div>
+	<script src="script.js"></script>
 </body>
 </html>

@@ -1,11 +1,268 @@
-html, body {
-    height: 100%;
-    width: 100%;
+@font-face {
+    font-family: 'pt_serifbold';
+    src: url('fonts/PTF75F-webfont.woff');
+    font-weight: normal;
+    font-style: normal;
 }
 
+html,
 body {
-    display: grid;
-    height: 100vh;
-    margin: 0;
-    place-items: center center;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    color: #333333;
+    font-size: 15px;
 }
+
+header {}
+
+h1 {
+    font-family: 'pt_serifbold', serif;
+    font-size: 6.25rem;
+    margin: 0;
+    text-align: center;
+}
+
+h2 {
+    font-family: 'pt_serifbold', serif;
+}
+
+h3 {
+    font-family: 'pt_serifbold', serif;
+    font-size: 3.55rem;
+    margin: 0;
+    text-align: center;
+}
+
+#start {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    justify-content: center;
+    flex-wrap: wrap;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    transition: transform 2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    z-index: 1;
+}
+
+#buttonContainer {
+    margin-top: 25px;
+    display: flex;
+    width: 45%;
+    justify-content: space-between;
+}
+
+#selectOpponent {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    justify-content: center;
+    flex-wrap: wrap;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    transition: transform 2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    z-index: 2;
+}
+
+.gone {
+    /*display: none !important; */
+    opacity: 0;
+    pointer-events: none;
+}
+
+.left {
+    transform: translateX(-100vw);
+}
+
+.top {
+    transform: translateY(-50vw);
+}
+
+.middle {
+    transform: translate(0, 0);
+}
+
+.right {
+    transform: translateX(100vw);
+}
+
+#name {
+    border: none;
+    font-family: sans-serif;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: auto;
+    display: block;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.02);
+    text-align: center;
+    transition: background-color 1s;
+}
+
+#name:focus {
+    outline: none;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+button {
+    border: none;
+    font-family: sans-serif;
+    font-size: 1.875rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 10px;
+    color: #eee;
+    padding: 10px 15px 10px 15px;
+    width: 49%;
+    background-color: #333;
+    cursor: pointer;
+    transition: background-color 250ms cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+button:focus {
+    outline: none;
+    background-color: #444;
+}
+
+button:hover {
+    background-color: #444;
+}
+
+#go {
+    font-size: 2.5rem;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background-color: rgba(0, 0, 0, 0.02);
+    background-position: center;
+    transition: background 0.8s;
+    cursor: pointer;
+}
+
+#go:focus {
+    outline: none;
+}
+
+
+#go:active {
+    background-color: rgba(0, 0, 0, 0.05);
+    background-size: 100%;
+    transition: background 0s;
+}
+
+.non-clickable {
+    cursor: default;
+}
+
+#tableContainer {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    z-index: -1;
+    transition: transform 2s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.pushup {
+    align-items: center;
+}
+
+.cardWrapper {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 4;
+    transition: background-color 1500ms cubic-bezier(0.4, 0.0, 0.2, 1);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(1,0,0,.4);
+}
+
+.cardWrapper.gone {
+    background-color: rgba(0, 0, 0 ,0);
+}
+
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    background-color: #ffffff;
+    transition: transform 2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    border-radius: 5px; /* 5px rounded corners */
+    padding: 20px 50px;
+}
+
+
+.card p {
+    font-family: sans-serif;
+    text-align: center;
+    font-size: 1.8rem;
+    margin-top: 10px;
+}
+.card button {
+    margin-bottom: 15px;
+    width: 49%;
+    font-size: 1.5rem;
+}
+
+.card h3 {
+    font-family: sans-serif;
+}
+/*.cardButtons {*/
+/*    padding-bottom: 15px;*/
+/*}*/
+
+table {
+    font-size: 10rem;
+    font-family: sans-serif;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+td {
+    width: 1.2em;
+    height: 1.2em;
+    border: 0.375rem solid #333;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+tr:first-of-type td {
+    border-top-color: transparent;
+}
+
+tr:nth-of-type(3) td {
+    border-bottom-color: transparent;
+}
+
+td:first-of-type {
+    border-left-color: transparent;
+}
+
+td:nth-of-type(3) {
+    border-right-color: transparent;
+}
+
+
+/* td:first-of-type {
+    border-left-color: transparent;
+    border-top-color: transparent;
+  }
+  
+  td:nth-of-type(2) {
+    border-top-color: transparent;
+  }
+  
+  td:nth-of-type(3) {
+    border-right-color: transparent;
+    border-top-color: transparent;
+  }
+  
+  tr:nth-of-type(3) td {
+    border-bottom-color: transparent;
+  } */

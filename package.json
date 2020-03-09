@@ -6,7 +6,7 @@
     "server": "node ./server/main.js",
     "lite": "lite-server --baseDir ./test/harness --port 10001",
     "harness": "concurrently --kill-others \"watchify ./test/harness/client.js -o ./test/harness/script.js\" \"npm run lite\"",
-    "client":  "concurrently --kill-others \"watchify ./client/client.js -o ./client/script.js\" \"lite-server --baseDir ./client --port 10001\""
+    "client": "concurrently --kill-others \"watchify ./client/client.js -o ./client/script.js\" \"lite-server --baseDir ./client --port 10001\""
   },
   "keywords": [],
   "author": "",

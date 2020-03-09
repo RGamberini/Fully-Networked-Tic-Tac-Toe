@@ -80,7 +80,7 @@ module.exports = {
 
     server_match_request: {
         ID: 0x06,
-        name: "SERVER CONFIRM PLAYER SELECTION",
+        name: "SERVER MATCH REQUEST",
         encode: basicEncode,
         decode: basicDecode
     },
@@ -88,6 +88,20 @@ module.exports = {
     client_match_response: {
         ID: 0x07,
         name: "CLIENT MATCH RESPONSE",
+        encode: basicEncode,
+        decode: basicDecode
+    },
+
+    client_cancel_match_request: {
+        ID: 0x08,
+        name: "CLIENT CANCEL MATCH REQUEST",
+        encode: basicEncode,
+        decode: basicDecode
+    },
+
+    server_match_response: {
+        ID: 0x09,
+        name: "SERVER MATCH RESPONSE",
         encode: basicEncode,
         decode: basicDecode
     },

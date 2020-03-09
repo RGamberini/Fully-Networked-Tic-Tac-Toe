@@ -17,11 +17,11 @@
 		<div class="card top">
 			<div class="cardContent">
 				<h3>Game Over</h3>
-				<p>Congratulations you won! </p>
+				<p>Congratulations you won!</p>
 			</div>
 			<div class="cardButtons">
 				<button>Go Back</button>
-				<button style="float: right">Rematch</button>
+				<button>Rematch</button>
 			</div>
 		</div>
 	</div>
@@ -33,17 +33,18 @@
 			<input type="text" id="name" placeholder="Enter your name">
 		</div>
 		<div id="buttonContainer">
-			<button id="bot">Play VS CPU</button>
-			<button style="float: right;" id="play">Play VS Human</button>
+			<button class="playButton" id="bot">Play VS CPU</button>
+			<button class="playButton" id="play">Play VS Human</button>
 		</div>
 	</div>
 	<div id="selectOpponent" class="right gone">
-		<div class="pushup">
+		<div class="pushup" style="flex-basis: 65%">
 			<header>
 				<h3>Select Opponent</h3>
+				<h2>Sorry...<br>Looks like no else is playing right now</h2>
 			</header>
 			<div id="buttons" style="display: flex; justify-content: center;">
-				<button>Rude</button>
+<!--				<button>Rude</button>-->
 			</div>
 		</div>
 	</div>

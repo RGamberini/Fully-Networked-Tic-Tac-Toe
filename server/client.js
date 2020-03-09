@@ -38,7 +38,7 @@ class Client extends EventEmitter {
         waiting_for_match: {
             handle: (connection, packet) => {
                 if (packet.ID !== Packets.client_player_select.ID) return Client.states.failed;
-                let opponentID = Packets.client_player_select.decode(packet);
+                let opponentID = Packets.client_player_select.decode(packet.payload);
                 connection.emit(Client.events.request_match, opponentID);
 
                 return Client.states.waiting_for_response;
@@ -47,12 +47,12 @@ class Client extends EventEmitter {
 
         waiting_for_confirm: {
             handle: (connection, packet) => {
-                if (packet.ID !== Packets.client_match_response) return Client.states.failed;
-                let response = Packets.client_match_response.decode(packet);
+                if (packet.ID !== Packets.client_match_response.ID) return Client.states.failed;
+                let response = Packets.client_match_response.decode(packet.payload);
 
                 if (response === 0) {
                     connection.emit(Client.events.reject_match);
-                    return Client.states.waiting_for_match;
+                    return Client.states.start_matchmaking;
                 }
                 else if(response === 1) {
                     connection.emit(Client.events.accept_match);
@@ -64,7 +64,9 @@ class Client extends EventEmitter {
 
         waiting_for_response: {
             handle: (connection, packet) => {
-                return Client.states.failed;
+                if (packet.ID !== Packets.client_cancel_match_request.ID) return Client.states.failed;
+                connection.emit(Client.events.reject_match);
+                return Client.states.waiting_for_match;
             }
         },
 
@@ -81,23 +83,46 @@ class Client extends EventEmitter {
         this.currentState = Client.states.client_hello;
     }
 
+    changeState(newState) {
+        let currentStateName = Object.keys(Client.states).find(k=>Client.states[k]===this.currentState);
+        let nextStateName = Object.keys(Client.states).find(k=>Client.states[k]===newState);
+        console.log(`Client ${this.ID ? this.ID : ""} '${this.name ? this.name : ""}' entering ${nextStateName} from ${currentStateName}`);
+        this.currentState = newState;
+    }
+
     handlePacket(message) {
         let packet = Packets.decodePacket(message);
-        console.log(`Received: ${Packets.packets[packet.ID].name} from client ${this.ID} ${this.name ? this.name : ""}`);
-        this.currentState = this.currentState.handle(this, packet);
+        let stateName = Object.keys(Client.states).find(k=>Client.states[k]===this.currentState);
+        console.log(`Received: ${Packets.packets[packet.ID].name} from Client ${this.ID} ${this.name ? "'" + this.name + "'" : ""} with ${JSON.stringify(packet.payload)}. Client ${this.ID} currently in state ${stateName}`);
+        this.changeState(this.currentState.handle(this, packet));
         if (this.currentState === Client.states.failed) this.close();
         // else console.log("Received: " + Packets.packets[packet.ID].name + " from " + this.name);
     }
 
     updatePlayerList(server) {
-        let payload = Packets.server_player_list.encode(server.matchmaking);
+        let payload = Packets.server_player_list.encode(server.matchmaking.filter((currentClient) =>
+            currentClient.ID !== this.ID));
         this.send(Packets.server_player_list.ID, payload);
     }
 
     matchRequest(opponentID) {
         let payload = Packets.server_match_request.encode(opponentID);
-        this.currentState = Client.states.waiting_for_confirm;
+        this.changeState(Client.states.waiting_for_confirm);
         this.send(Packets.server_match_request.ID, payload);
+    }
+
+    rejectMatch() {
+        if (this.currentState === Client.states.waiting_for_response)
+            this.changeState(Client.states.start_matchmaking);
+        let payload = Packets.server_match_response.encode(0);
+        this.send(Packets.server_match_response.ID, payload);
+    }
+
+    acceptMatch() {
+        if (this.currentState === Client.states.waiting_for_response)
+            this.changeState(Client.states.game);
+        let payload = Packets.server_match_response.encode(1);
+        this.send(Packets.server_match_response.ID, payload);
     }
 
     close() {
@@ -105,7 +130,7 @@ class Client extends EventEmitter {
     }
 
     send(header, payload) {
-        console.log(`Sending: ${Packets.packets[header].name} to client ${this.ID} ${this.name} with ${JSON.stringify(Packets.packets[header].decode(payload))}`);
+        console.log(`Sending: ${Packets.packets[header].name} to Client ${this.ID} ${this.name} with ${JSON.stringify(Packets.packets[header].decode(payload))}`);
         this.socket.send(Packets.encodePacket(header, payload));
     }
 }

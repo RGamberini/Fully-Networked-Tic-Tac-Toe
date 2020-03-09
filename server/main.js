@@ -5,7 +5,7 @@ const wss = new WebSocket.Server({port: 8080});
 
 wss.on('connection', function connection(ws, req) {
     let client = new Client(ws);
-    client.ID = server.addClient(client);
+    server.addClient(client);
     console.log(`Client ${client.ID} connecting from: ${req.connection.remoteAddress}`);
 
     ws.binaryType = 'arraybuffer';

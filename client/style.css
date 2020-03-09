@@ -11,7 +11,7 @@ body {
     width: 100%;
     overflow: hidden;
     color: #333333;
-    font-size: 15px;
+    font-size: 25px;
 }
 
 header {}
@@ -24,7 +24,11 @@ h1 {
 }
 
 h2 {
-    font-family: 'pt_serifbold', serif;
+    font-family: sans-serif;
+    font-size: 1.9rem;
+    text-align: center;
+    margin: 1.5rem 0 0;
+    color: rgba(90, 90, 90, .3);
 }
 
 h3 {
@@ -43,15 +47,27 @@ h3 {
     flex-direction: column;
     height: 100vh;
     width: 100vw;
-    transition: transform 1500ms cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition: transform 900ms cubic-bezier(0.4, 0.0, 0.2, 1);
     z-index: 1;
 }
 
 #buttonContainer {
+    position: relative;
     margin-top: 25px;
-    display: flex;
-    width: 45%;
-    justify-content: space-between;
+    display: inline-flex;
+    transform: translateX(-55%);
+}
+
+.playButton {
+    width: auto;
+}
+
+.playButton:nth-child(2) {
+    transform: translateX(110%);
+}
+.playButton:nth-child(1) {
+    position: absolute;
+    width: 100%;
 }
 
 #selectOpponent {
@@ -63,12 +79,15 @@ h3 {
     flex-direction: column;
     height: 100vh;
     width: 100vw;
-    transition: transform 1500ms cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition: transform 900ms cubic-bezier(0.4, 0.0, 0.2, 1);
     z-index: 2;
 }
 
+.nodisplay {
+    display: none !important;
+}
+
 .gone {
-    /*display: none !important; */
     opacity: 0;
     pointer-events: none;
 }
@@ -165,7 +184,7 @@ button:hover {
     height: 100%;
     width: 100%;
     z-index: -1;
-    transition: transform 1500ms cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition: transform 900ms cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
 .pushup {
@@ -178,7 +197,7 @@ button:hover {
     justify-content: center;
     align-items: center;
     z-index: 4;
-    transition: background-color 1500ms cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition: background-color 900ms cubic-bezier(0.4, 0.0, 0.2, 1);
     width: 100%;
     height: 100%;
     background-color: rgba(1,0,0,.4);
@@ -186,6 +205,7 @@ button:hover {
 
 .cardWrapper.gone {
     background-color: rgba(0, 0, 0 ,0);
+    opacity: 1;
 }
 
 .card {
@@ -203,10 +223,20 @@ button:hover {
     font-size: 1.8rem;
     margin-top: 10px;
 }
+
+.cardButtons {
+    display: flex;
+    justify-content: space-between;
+}
+
 .card button {
     margin-bottom: 15px;
     width: 49%;
     font-size: 1.5rem;
+}
+
+.card button:only-child {
+    margin: 0 auto 15px auto;
 }
 
 .card h3 {

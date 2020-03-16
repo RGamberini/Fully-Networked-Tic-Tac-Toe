@@ -1,4 +1,4 @@
-const Room = require('./room');
+const Game = require('./game');
 const Client = require('./client');
 function shuffle(arr) {
     let currentIndex = arr.length;
@@ -19,7 +19,7 @@ function shuffle(arr) {
 module.exports = {
     clients: [],
     matchmaking: [],
-    rooms: [],
+    games: [],
     possibleIDs: shuffle([...Array(255).keys()]),
 
     addClient: function(client) {
@@ -37,41 +37,45 @@ module.exports = {
             this.updatePlayerLists();
 
             let opponent = this.getClient(opponentID);
-            let room = this.rooms[this.rooms.push(new Room([client, opponent])) - 1];
-            client.room = room;
-            opponent.room = room;
+            let game = this.games[this.games.push(new Game([client, opponent])) - 1];
+            client.game = game;
+            opponent.game = game;
 
             opponent.matchRequest(client.ID);
         });
 
         client.on(Client.events.reject_match, () => {
-            let room = client.room;
-            room.clients.forEach((currentClient) => {
+            let game = client.game;
+            game.clients.forEach((currentClient) => {
                 if (currentClient && currentClient !== client) {
                     currentClient.rejectMatch();
-                    delete currentClient.room;
+                    delete currentClient.game;
                 }
             });
 
-            this.rooms = this.rooms.filter((currentRoom) => room !== currentRoom);
+            this.games = this.games.filter((currentRoom) => game !== currentRoom);
         });
 
         client.on(Client.events.accept_match, () => {
-            let room = client.room;
-            room.clients.forEach(client => {
-                client.acceptMatch();
+            let game = client.game;
+            game.clients.forEach(_client => {
+                if (client !== _client) _client.acceptMatch();
             })
         });
 
         client.on(Client.events.disconnect, () => {
-            console.log("Server disconnecting " + client.ID);
-            if (client.room) {
+            console.log(`Server disconnecting Client ${client.ID} ${client.name ? ` '${client.name}'` : ''}`);
+            if (client.currentState === Client.states.waiting_for_match || client.currentState === Client.states.waiting_for_response) {
                 client.emit(Client.events.reject_match);
             }
             this.clients = this.clients.filter(currentClient => currentClient.ID !== client.ID);
             this.matchmaking = this.matchmaking.filter(currentClient => currentClient.ID !== client.ID);
             this.possibleIDs.push(client.ID);
             this.updatePlayerLists();
+        });
+
+        client.on(Client.events.game_update, update => {
+            client.game.handle(update);
         });
     },
 

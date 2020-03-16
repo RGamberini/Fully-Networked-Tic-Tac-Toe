@@ -87,6 +87,10 @@ h3 {
     display: none !important;
 }
 
+.nopointer {
+    pointer-events: none;
+}
+
 .gone {
     opacity: 0;
     pointer-events: none;

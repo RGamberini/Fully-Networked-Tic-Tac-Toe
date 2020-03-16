@@ -6,7 +6,8 @@ class Client extends EventEmitter {
         request_match: "request_match",
         reject_match: "reject_match",
         accept_match: "accept_match",
-        disconnect: "disconnect"
+        disconnect: "disconnect",
+        game_update: "game_update"
     };
 
     static states = {
@@ -72,7 +73,9 @@ class Client extends EventEmitter {
 
         game: {
             handle: (connection, packet) => {
-
+                if (packet.ID !== Packets.client_game_update.ID) return Client.states.failed;
+                connection.emit(Client.events.game_update, Packets.client_game_update.decode(packet.payload));
+                return Client.states.game;
             }
         }
     };
@@ -123,6 +126,11 @@ class Client extends EventEmitter {
             this.changeState(Client.states.game);
         let payload = Packets.server_match_response.encode(1);
         this.send(Packets.server_match_response.ID, payload);
+    }
+
+    gameUpdate(update) {
+        let payload = Packets.server_game_update.encode(update[0], update[1]);
+        this.send(Packets.server_game_update.ID, payload);
     }
 
     close() {

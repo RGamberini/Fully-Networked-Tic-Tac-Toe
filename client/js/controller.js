@@ -1,5 +1,11 @@
-class Controller {
+const EventEmitter = require('events').EventEmitter;
+class Controller extends EventEmitter {
+    static events = {
+        click:"click"
+    };
+
     constructor(model, view) {
+        super();
         this.model = model;
         this.view = view;
         let tbody = document.querySelector("tbody");
@@ -12,9 +18,7 @@ class Controller {
             let currentRow = tbody.children[x].children;
             for (let y = 0; y < tbody.children.length; y++) {
                 currentRow[y].onclick = (event) => {
-                    this.setMark(x, y);
-                    currentRow[y].classList.add("non-clickable");
-                    currentRow[y].onclick = function(event){};
+                    this.emit(Controller.events.click, x, y);
                 };
             }
         }

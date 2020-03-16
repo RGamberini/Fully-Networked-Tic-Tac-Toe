@@ -3,15 +3,17 @@ class Model extends EventEmitter {
     static events = {
         boardUpdate: "boardUpdate"
     };
-    constructor () {
+
+    static players = {
+        player1: 1,
+        player2: -1
+    };
+
+    constructor (predefinedState) {
         super();
         this.board = [...Array(3)].map(x=>Array(3).fill(0));
         this.wins = [...Array(3)].map(x=>Array(3).fill(0));
-        this.PLAYERS = {
-            PLAYER1: 1,
-            PLAYER2: -1
-        };
-        this.currentPlayer = this.PLAYERS.PLAYER1;
+        this.currentPlayer = Model.players.player1;
     }
 
     setMark(x, y) {

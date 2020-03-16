@@ -106,6 +106,50 @@ module.exports = {
         decode: basicDecode
     },
 
+    client_game_info_request: {
+        ID: 0x0A,
+        name: "CLIENT GAME INFO REQUEST",
+        encode: basicEncode,
+        decode: basicDecode
+    },
+
+    server_game_info_response: {
+        ID: 0x0B,
+        name: "SERVER GAME INFO RESPONSE",
+        encode: basicEncode,
+        decode: basicDecode
+    },
+
+    client_game_update: {
+        ID: 0x0C,
+        name: "CLIENT GAME UPDATE",
+        encode: function (x, y) {
+            const SIZE = 3;
+            return basicEncode(x + y * SIZE);
+        },
+        decode: function (payload) {
+            const SIZE = 3;
+            let index = payload[0];
+            let x = index % SIZE, y = Math.floor(index / SIZE);
+            return [x, y];
+        }
+    },
+
+    server_game_update: {
+        ID: 0x0D,
+        name: "SERVER GAME UPDATE",
+        encode: function (x, y) {
+            const SIZE = 3;
+            return basicEncode(x + y * SIZE);
+        },
+        decode: function (payload) {
+            const SIZE = 3;
+            let index = payload[0];
+            let x = index % SIZE, y = Math.floor(index / SIZE);
+            return [x, y];
+        }
+    },
+
     encodePacket: (header, payload) => {
         let packetHeader = new Uint8Array([header]);
         let result = new Uint8Array(packetHeader.length + payload.length);

@@ -1,5 +1,5 @@
 const EventEmitter = require('events').EventEmitter;
-const Model = require('./js/model');
+const Model = require('../shared/model');
 const View = require('./js/view');
 const Controller = require('./js/controller');
 const Packets = require("../shared/Packets");
@@ -10,6 +10,7 @@ class State {
         send_packet:"send_packet",
         set_id: "set_id",
         show_modal: "show_modal",
+        change_modal: "change_modal",
         hide_modal: "hide_modal"
     };
 
@@ -162,7 +163,6 @@ class Client {
                         {
                             text: "Reject",
                             click: () => {
-                                this.emit(State.events.hide_modal);
                                 let payload = Packets.client_match_response.encode(0);
                                 this.emit(State.events.send_packet, Packets.client_match_response.ID, payload);
                                 this.changeState(Client.states.SelectOpponent);
@@ -172,15 +172,17 @@ class Client {
                         {
                             text: "Accept",
                             click: () => {
-                                this.emit(State.events.hide_modal);
                                 let payload = Packets.client_match_response.encode(1);
                                 this.emit(State.events.send_packet, Packets.client_match_response.ID, payload);
-                                Client.states.SelectOpponent.exit(Client.states.Game);
-                                this.changeState(Client.states.Game);
+                                this.changeState(Client.states.PregameInfo);
                             }
                         }
                     ]
                 });
+            }
+
+            exit(nextState) {
+                this.emit(State.events.hide_modal);
             }
         };
 
@@ -195,7 +197,10 @@ class Client {
                             text: "Cancel",
                             click: () => {
                                 let payload = Packets.client_cancel_match_request.encode(0);
-                                this.emit(State.events.send_packet, Packets.client_cancel_match_request.ID, payload);
+                                this.emit(
+                                    State.events.send_packet,
+                                    Packets.client_cancel_match_request.ID,
+                                    payload);
                                 this.changeState(Client.states.SelectOpponent);
                             }
                         }
@@ -209,7 +214,7 @@ class Client {
                     let response = Packets.server_match_response.decode(packet.payload);
                     if (response === 1) {
                         this.changeState(Client.states.Game);
-                        Client.states.SelectOpponent.exit(Client.states.Game);
+                        Client.states.SelectOpponent.exit(Client.states.PregameInfo);
                     } else if (response === 0) this.changeState(Client.states.SelectOpponent);
                     else this.changeState(Client.states.Failed);
                 }
@@ -220,15 +225,69 @@ class Client {
             }
         };
 
+        PregameInfo = new class extends State {
+            enter() {
+                function click(turn) {
+                    let payload = Packets.client_game_info_request.encode(1);
+                    this.emit(
+                        State.events.send_packet,
+                        Packets.client_game_info_request.ID,
+                        payload);
+                }
+
+                this.emit(State.events.show_modal, {
+                    title: "Preparing your game",
+                    subtitle: "Would you rather go first or second?",
+                    buttons: [
+                        {
+                            text: "First",
+                            click: () => click(1)
+                        },
+                        {
+                            text: "Second",
+                            click: () => click(2)
+                        }
+                    ]
+                })
+            }
+
+            handlePacket(packet) {
+                if (packet.ID !== Packets.server_game_info_response.ID) this.changeState(Client.states.Failed);
+                let _player = [Model.players.player1, Model.players.player2][Packets.server_game_info_response.decode(packet.payload) - 1];
+                this.changeState(Client.states.Game, {player: _player});
+            }
+
+            exit(nextState) {
+                Client.states.SelectOpponent.exit(Client.states.Game);
+                this.emit(State.events.hide_modal);
+            }
+        };
+
         Game = new class extends State {
             constructor() {
                 super();
                 this.game = document.querySelector("#tableContainer")
             }
 
-            enter() {
+            enter(params) {
                 this.game.classList.toggle('gone');
                 this.game.classList.toggle('right');
+
+                this.model = new Model();
+                this.view = new View(this.model);
+                this.controller = new Controller(this.model, this.view);
+                this.controller.on(Controller.events.click,
+                    (x, y) => this.emit(
+                        State.events.send_packet,
+                        Packets.client_game_update.ID,
+                        Packets.client_game_update.encode(x, y)
+                    ));
+            }
+
+            handlePacket(packet) {
+                if (packet.ID !== Packets.server_game_update.ID) this.changeState(Client.states.Failed);
+                let move = Packets.server_game_update.decode(packet.payload);
+                this.controller.setMark(move[0], move[1]);
             }
 
             exit() {
@@ -247,7 +306,7 @@ class Client {
             this.buttonContainer = this.modal.querySelector(".cardButtons");
         }
 
-        show(modalConf) {
+        change(modalConf) {
             this.title.textContent = modalConf.title;
             this.subtitle.textContent = modalConf.subtitle;
 
@@ -258,6 +317,10 @@ class Client {
                 newButton.addEventListener('click', button.click);
                 this.buttonContainer.appendChild(newButton);
             }
+        }
+
+        show(modalConf) {
+            this.change(modalConf);
 
             this.container.classList.remove("gone");
             this.modal.classList.remove("top");
@@ -279,7 +342,8 @@ class Client {
         Client.states.on(State.events.exit, (state, params) => this.changeState(state, params));
         Client.states.on(State.events.send_packet, (header, payload) => this.send(header, payload));
         Client.states.on(State.events.set_id, id => this.ID = id);
-        Client.states.on(State.events.show_modal, modelConf => Client.modal.show(modelConf));
+        Client.states.on(State.events.show_modal, modalConf => Client.modal.show(modalConf));
+        Client.states.on(Stae.events.change_modal, modalConf => Client.modal.change(modalConf))
         Client.states.on(State.events.hide_modal, () => Client.modal.hide());
     }
 
@@ -311,8 +375,5 @@ class Client {
     }
 }
 
-let model = new Model();
-let view = new View(model);
-let controller = new Controller(model, view);
 let client = new Client(Client.states.MainMenu);
 
